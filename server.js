@@ -17,6 +17,7 @@ mongoose.connection.on('connected', () => {
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(logger('dev'));
 
 // Routes go here
