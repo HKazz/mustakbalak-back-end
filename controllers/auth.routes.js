@@ -1,34 +1,31 @@
-const User = require("../models/User")
+const User = require("../models/User");
 
 const router = require("express").Router()
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const verifyToken = require("../middleware/verify-token")
 
-router.post("/sign-up",async(req,res)=>{
-    try{
-        const foundUser = await User.findOne({username:req.body.username})
-        
-        if(foundUser){
-            return res.status(409).json({err:"username already taken"})
+router.post("/sign-up", async (req, res) => {
+    try {
+        const foundUser = await User.findOne({ username: req.body.username });
+
+        if (foundUser) {
+            return res.status(409).json({ err: "username already taken" });
         }
         const createdUser = await User.create({
-            username:req.body.username,
-            hashedPassword: bcrypt.hashSync(req.body.password,12)
-        })
-        console.log(createdUser)
+            username: req.body.username,
+            hashedPassword: bcrypt.hashSync(req.body.password, 12),
+        });
+        console.log(createdUser);
 
-
-        const convertedObject = createdUser.toObject()
-        delete convertedObject.hashedPassword
-        res.json(convertedObject)
-
+        const convertedObject = createdUser.toObject();
+        delete convertedObject.hashedPassword;
+        res.json(convertedObject);
+    } catch (error) {
+        console.error("Error in /sign-up route:", error); // Added error logging
+        res.status(500).json(error);
     }
-    catch(error){
-        res.status(500).json(error)
-    }
-
-})
+});
 
 router.post("/login",async(req,res)=>{
     // destructure the req.body
