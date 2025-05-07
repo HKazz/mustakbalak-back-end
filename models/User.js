@@ -9,6 +9,11 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+    userType: {
+      type: String,
+      required: [true, "User type is required"],
+      enum: ["job seeker", "hiring manager"],
+    },
     fullName: {
       type: String,
       required: [true, "Full name is required"],
@@ -63,11 +68,6 @@ const userSchema = new mongoose.Schema(
     Address: {
       type: String,
       required: [true, "Address is required"],
-    },
-    userType: {
-      type: String,
-      required: [true, "User type is required"],
-      enum: ["job seeker", "hiring manager"],
     },
     currentPosition: {
       type: String,

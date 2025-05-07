@@ -7,7 +7,6 @@ const verifyToken = require("../middleware/verify-token")
 
 router.post("/sign-up", async (req, res) => {
     try {
-        console.log("Request Body:", req.body); // Log the request body
         const foundUser = await User.findOne({ username: req.body.username });
 
         if (foundUser) {
@@ -16,7 +15,6 @@ router.post("/sign-up", async (req, res) => {
         const createdUser = await User.create({
             username: req.body.username,
             hashedPassword: bcrypt.hashSync(req.body.password, 12),
-            ...req.body, // Spread the rest of the fields
         });
         console.log(createdUser);
 
@@ -24,7 +22,7 @@ router.post("/sign-up", async (req, res) => {
         delete convertedObject.hashedPassword;
         res.json(convertedObject);
     } catch (error) {
-        console.error("Error in /sign-up route:", error);
+        console.error("Error in /sign-up route:", error); // Added error logging
         res.status(500).json(error);
     }
 });
