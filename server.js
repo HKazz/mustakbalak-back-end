@@ -8,6 +8,7 @@ const logger = require('morgan');
 const testJwtRouter = require("./controllers/test-jwt")
 const authRoutes = require("./controllers/auth.routes")
 const verifyToken = require("./middleware/verify-token")
+const userRoutes = require("./controllers/user.routes")
 
 mongoose.connect(process.env.MONGODB_URI);
 
@@ -22,6 +23,7 @@ app.use(logger('dev'));
 
 // Routes go here
 app.use("/auth",authRoutes)
+app.use("/user", userRoutes)
 
 app.use("/test-jwt",verifyToken,testJwtRouter)
 
