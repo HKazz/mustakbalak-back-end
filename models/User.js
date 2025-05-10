@@ -71,16 +71,10 @@ const userSchema = new mongoose.Schema(
     },
     currentPosition: {
       type: String,
-      required: function () {
-        return this.userType === "hiring manager";
-      },
       default: "",
     },
     company: {
       type: String,
-      required: function () {
-        return this.userType === "hiring manager";
-      },
       default: "",
     },
     hashedPassword: {
@@ -92,6 +86,14 @@ const userSchema = new mongoose.Schema(
     timestamps: true, // Automatically adds createdAt and updatedAt fields
   }
 );
+
+userSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+      delete returnedObject.hashedPassword;
+  }
+});
+
+
 
 const User = mongoose.model("User", userSchema);
 

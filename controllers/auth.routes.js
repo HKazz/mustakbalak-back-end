@@ -12,10 +12,17 @@ router.post("/sign-up", async (req, res) => {
         if (foundUser) {
             return res.status(409).json({ err: "username already taken" });
         }
+
         const createdUser = await User.create({
             username: req.body.username,
             hashedPassword: bcrypt.hashSync(req.body.password, 12),
+            fullName: req.body.fullName,
+            email: req.body.email,
+            phoneNumber: req.body.phoneNumber,
+            Address: req.body.Address,
+            userType: req.body.userType
         });
+
         console.log(createdUser);
 
         const convertedObject = createdUser.toObject();
