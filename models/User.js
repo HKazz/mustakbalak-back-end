@@ -71,16 +71,10 @@ const userSchema = new mongoose.Schema(
     },
     currentPosition: {
       type: String,
-      required: function () {
-        return this.userType === "hiring manager";
-      },
       default: "",
     },
     company: {
       type: String,
-      required: function () {
-        return this.userType === "hiring manager";
-      },
       default: "",
     },
     hashedPassword: {
