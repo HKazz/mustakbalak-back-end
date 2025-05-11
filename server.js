@@ -10,6 +10,7 @@ const authRoutes = require("./controllers/auth.routes")
 const verifyToken = require("./middleware/verify-token")
 const userRoutes = require("./controllers/user.routes")
 const companyRoutes = require("./controllers/company.routes")
+const jobRoutes = require("./controllers/joblisting.routes")
 
 mongoose.connect(process.env.MONGODB_URI);
 
@@ -26,6 +27,7 @@ app.use(logger('dev'));
 app.use("/auth",authRoutes)
 app.use("/user", userRoutes)
 app.use("/company", companyRoutes)
+app.use("/company/:companyid/job" , jobRoutes)
 
 app.use("/test-jwt",verifyToken,testJwtRouter)
 
