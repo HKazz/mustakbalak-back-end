@@ -45,12 +45,11 @@ router.get('/:jobid', verifyToken, async(req, res) => {
 router.post("/", verifyToken, async (req, res) => {
     try {
         
-        const currentUser = await User.findById(req.user_id);
-        
+        const currentUser = await User.findById(req.user._id);
 
-        // if (!currentUser || currentUser.userType !== "hiring manager") {
-        //     return res.status(401).json({ error: "only managers can create a company" });
-        // }
+        if (!currentUser || currentUser.userType !== "hiring manager") {
+            return res.status(401).json({ error: "only managers can edit a job" });
+        }
 
         const {listingName, listingDescription, requirements, listingType, salary, benefits} = req.body;
         
@@ -99,10 +98,11 @@ router.post("/", verifyToken, async (req, res) => {
 
 router.put('/:jobid', verifyToken, async(req,res) =>{
     try {
-        // const currentUser = await User.findById(req.user_id);
-        // if (!currentUser || currentUser.userType !== "hiring manager") {
-        //     return res.status(401).json({ error: "only managers can create a company" });
-        // }
+        const currentUser = await User.findById(req.user._id);
+
+        if (!currentUser || currentUser.userType !== "hiring manager") {
+            return res.status(401).json({ error: "only managers can edit a job" });
+        }
 
         const foundJob = await Jobs.findById(req.params.companyid);
         
@@ -117,6 +117,13 @@ router.put('/:jobid', verifyToken, async(req,res) =>{
 
 router.delete('/:jobid', verifyToken, async(req,res)=>{
     try {
+
+        const currentUser = await User.findById(req.user._id);
+
+        if (!currentUser || currentUser.userType !== "hiring manager") {
+            return res.status(401).json({ error: "only managers can edit a job" });
+        }
+        
         const foundJob = await Jobs.findById(req.params.jobid)
         if(!foundJob){
             return res.status(404).json({message: "Job not found"})
