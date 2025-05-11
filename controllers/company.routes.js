@@ -14,13 +14,11 @@ router.get('/', verifyToken, async (req,res) => {
 
 router.post("/", verifyToken, async (req, res) => {
     try {
-        console.log("User ID from token:", req.user_id); // Debugging
-        const currentUser = await User.findById(req.user_id);
-        console.log("Current user:", currentUser); // Debugging
+        const currentUser = await User.findById(req.user._id);
 
-        // if (!currentUser || currentUser.userType !== "hiring manager") {
-        //     return res.status(401).json({ error: "only managers can create a company" });
-        // }
+        if (!currentUser || currentUser.userType !== "hiring manager") {
+            return res.status(401).json({ error: "only managers can create a company" });
+        }
 
         const newCompany = new Company(req.body);
         await newCompany.save();
@@ -44,10 +42,11 @@ router.get('/:companyid', verifyToken, async (req,res) => {
 
 router.put('/:companyid', verifyToken, async(req,res) =>{
     try {
-        // const currentUser = await User.findById(req.user_id);
-        // if (!currentUser || currentUser.userType !== "hiring manager") {
-        //     return res.status(401).json({ error: "only managers can create a company" });
-        // }
+        const currentUser = await User.findById(req.user._id);
+
+        if (!currentUser || currentUser.userType !== "hiring manager") {
+            return res.status(401).json({ error: "only managers can edit a company" });
+        }
 
         const foundCompany = await Company.findById(req.params.companyid);
         
@@ -62,6 +61,13 @@ router.put('/:companyid', verifyToken, async(req,res) =>{
 
 router.delete('/:companyid', verifyToken, async(req,res)=>{
     try {
+
+        const currentUser = await User.findById(req.user._id);
+
+        if (!currentUser || currentUser.userType !== "hiring manager") {
+            return res.status(401).json({ error: "only managers can delete a company" });
+        }
+
         const foundCompany = await Company.findById(req.params.companyid)
         if(!foundCompany){
             return res.status(404).json({message: "Company not found"})
