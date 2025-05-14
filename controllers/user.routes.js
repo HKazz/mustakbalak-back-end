@@ -1,6 +1,22 @@
 const User = require('../models/User')
 const router = require("express").Router()
 const verifyToken = require("../middleware/verify-token")
+const sendEmail = require('../sendEmail')
+
+
+
+router.post("/test-email",async (req,res)=>{
+    try{
+    sendEmail("omaraakamal@gmail.com")
+    res.json("Email successfully sent")
+    }
+    catch(err){
+        console.log(err)
+    }
+
+
+})
+
 
 router.get('/:user_id', verifyToken, async (req,res) => {
     try {
@@ -37,5 +53,6 @@ router.delete('/:user_id', verifyToken, async(req,res)=>{
         res.status(500).json(error)
     }
 })
+
 
 module.exports = router

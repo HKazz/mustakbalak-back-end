@@ -4,6 +4,8 @@ const router = require("express").Router()
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const verifyToken = require("../middleware/verify-token")
+const sendEmail = require('../sendEmail')
+
 
 router.post("/sign-up", async (req, res) => {
     try {
@@ -13,6 +15,9 @@ router.post("/sign-up", async (req, res) => {
             return res.status(409).json({ err: "username already taken" });
         }
 
+        const code = Math.round(Math.random()*10000) 
+        
+        console.log(code)
         const createdUser = await User.create({
             username: req.body.username,
             hashedPassword: bcrypt.hashSync(req.body.password, 12),
@@ -20,10 +25,16 @@ router.post("/sign-up", async (req, res) => {
             email: req.body.email,
             phoneNumber: req.body.phoneNumber,
             Address: req.body.Address,
-            userType: req.body.userType
+            userType: req.body.userType,
+            code
         });
 
+
+
+
         console.log(createdUser);
+
+        sendEmail(createdUser.email,code)
 
         const convertedObject = createdUser.toObject();
         delete convertedObject.hashedPassword;
@@ -33,6 +44,30 @@ router.post("/sign-up", async (req, res) => {
         res.status(500).json(error);
     }
 });
+
+
+
+router.post("/authenticate/:email",async(req,res)=>{
+
+    const {code} = req.body
+    const {email} = req.params
+
+    try{
+        
+        const foundUser = await User.findOne({email:email})
+        console.log(foundUser.code)
+        console.log(code)
+        if(foundUser.code === code){
+            await User.findByIdAndUpdate(foundUser._id,{code:null})
+            res.json({message:"You are verified. Please log in"})
+        }
+        else{
+            res.json({message:"incorrect code"})
+        }
+    }catch(err){
+        console.log(err)
+    }
+})
 
 router.post("/login",async(req,res)=>{
     // destructure the req.body
@@ -44,6 +79,11 @@ router.post("/login",async(req,res)=>{
         // if there isnt a user this means that the user hasnt signed up yet
         if(!foundUser){
             return res.status(401).json({err:"username not signed up. Please sign up"})
+        }
+
+
+        if(foundUser.code !== null){
+            res.json({message:"Please check your emaill for the code"})
         }
 
         // 2. check if the password given in the req.body matches the passowrd in the DB
