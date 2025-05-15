@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
-const userSchema = new mongoose.Schema(
+const hiringManagerSchema = new mongoose.Schema(
   {
     username: {
       type: String,
@@ -33,68 +33,53 @@ const userSchema = new mongoose.Schema(
       trim: true,
       validate: {
         validator: function (v) {
-          return /^\d{8,15}$/.test(v); // Ensures phone number is between 8-15 digits
+          return /^\d{8,15}$/.test(v);
         },
         message: "Invalid phone number format",
       },
     },
-    userType: {
+    currentPosition: {
       type: String,
-      enum: ['job_seeker', 'hiring_manager'],
-      required: [true, "User type is required"],
+      required: [true, "Current position is required"],
     },
-    nationality: {
+    company: {
       type: String,
-      lowercase: true,
+      required: [true, "Company name is required"],
     },
-    DOB: {
-      type: Date,
+    department: {
+      type: String,
+      required: [true, "Department is required"],
     },
-    education: [{
-      institution: String,
-      degree: String,
-      field: String,
-      graduationYear: Number,
-      gpa: Number,
-      description: String
-    }],
-    experience: [{
-      company: String,
-      position: String,
-      startDate: Date,
-      endDate: Date,
-      description: String,
-      location: String,
-      isCurrentPosition: Boolean
-    }],
-    skills: [{
-      name: String,
-      level: {
-        type: String,
-        enum: ['beginner', 'intermediate', 'advanced', 'expert']
-      }
-    }],
-    certificates: [{
-      name: String,
-      issuer: String,
-      date: Date,
-      expiryDate: Date,
-      credentialId: String,
-      credentialUrl: String
-    }],
-    fields: [{
-      type: String
-    }],
+    role: {
+      type: String,
+      enum: ["recruiter", "hiring manager", "talent acquisition", "hr manager"],
+      required: [true, "Role is required"],
+    },
+    companySize: {
+      type: String,
+      enum: ["1-10", "11-50", "51-200", "201-500", "501-1000", "1000+"],
+      required: [true, "Company size is required"],
+    },
+    industry: {
+      type: String,
+      required: [true, "Industry is required"],
+    },
     address: {
       street: String,
       city: String,
       state: String,
       country: String,
-      postalCode: String
+      postalCode: String,
     },
     hashedPassword: {
       type: String,
       required: [true, "Password is required"],
+    },
+    userType: {
+      type: String,
+      enum: ['job_seeker', 'hiring_manager'],
+      default: 'hiring_manager',
+      required: true
     },
     profileCompleted: {
       type: Boolean,
@@ -110,12 +95,12 @@ const userSchema = new mongoose.Schema(
     }
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt fields
+    timestamps: true,
   }
 );
 
 // Hash password before saving
-userSchema.pre('save', async function(next) {
+hiringManagerSchema.pre('save', async function(next) {
   if (!this.isModified('hashedPassword')) return next();
   
   try {
@@ -128,10 +113,10 @@ userSchema.pre('save', async function(next) {
 });
 
 // Method to compare password
-userSchema.methods.comparePassword = async function(candidatePassword) {
+hiringManagerSchema.methods.comparePassword = async function(candidatePassword) {
   return bcrypt.compare(candidatePassword, this.hashedPassword);
 };
 
-const User = mongoose.model("User", userSchema);
+const HiringManager = mongoose.model("HiringManager", hiringManagerSchema);
 
-module.exports = User;
+module.exports = HiringManager; 
