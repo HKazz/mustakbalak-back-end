@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 
 const userSchema = new mongoose.Schema(
   {
@@ -42,6 +43,11 @@ const userSchema = new mongoose.Schema(
         message: "Invalid phone number format",
       },
     },
+    userType: {
+      type: String,
+      enum: ['job_seeker', 'hiring_manager'],
+      required: [true, "User type is required"],
+    },
     nationality: {
       type: String,
       lowercase: true,
@@ -49,6 +55,49 @@ const userSchema = new mongoose.Schema(
     DOB: {
       type: Date,
     },
+
+    education: [{
+      institution: String,
+      degree: String,
+      field: String,
+      graduationYear: Number,
+      gpa: Number,
+      description: String
+    }],
+    experience: [{
+      company: String,
+      position: String,
+      startDate: Date,
+      endDate: Date,
+      description: String,
+      location: String,
+      isCurrentPosition: Boolean
+    }],
+    skills: [{
+      name: String,
+      level: {
+        type: String,
+        enum: ['beginner', 'intermediate', 'advanced', 'expert']
+      }
+    }],
+    certificates: [{
+      name: String,
+      issuer: String,
+      date: Date,
+      expiryDate: Date,
+      credentialId: String,
+      credentialUrl: String
+    }],
+    fields: [{
+      type: String
+    }],
+    address: {
+      street: String,
+      city: String,
+      state: String,
+      country: String,
+      postalCode: String
+=======
     education: {
       type: String,
       trim: true,
@@ -76,13 +125,28 @@ const userSchema = new mongoose.Schema(
     company: {
       type: String,
       default: "",
+
     },
     hashedPassword: {
       type: String,
       required: [true, "Password is required"],
     },
+
+    profileCompleted: {
+      type: Boolean,
+      default: false
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now
+    },
+    updatedAt: {
+      type: Date,
+      default: Date.now
+
     code:{
       type: Number
+
     }
   },
   {
@@ -90,11 +154,31 @@ const userSchema = new mongoose.Schema(
   }
 );
 
+
+// Hash password before saving
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('hashedPassword')) return next();
+  
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.hashedPassword = await bcrypt.hash(this.hashedPassword, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Method to compare password
+userSchema.methods.comparePassword = async function(candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.hashedPassword);
+};
+=======
 userSchema.set('toJSON', {
   transform: (document, returnedObject) => {
       delete returnedObject.hashedPassword;
   }
 });
+
 
 
 
