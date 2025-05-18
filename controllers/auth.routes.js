@@ -97,6 +97,7 @@ router.post('/login', async (req, res) => {
       return res.status(403).json({ 
         message: 'Access denied. This login is for job seekers only. Please use the hiring manager login page.' 
       });
+
     }
 
     // Generate JWT token
@@ -129,11 +130,42 @@ router.post('/complete-profile', verifyToken, async (req, res) => {
     const userId = req.user.userId;
     const updateData = req.body;
 
+
+router.post("/authenticate/:email",async(req,res)=>{
+
+    const {code} = req.body
+    const {email} = req.params
+
+    try{
+        
+        const foundUser = await User.findOne({email:email})
+        console.log(foundUser.code)
+        console.log(code)
+        if(foundUser.code === code){
+            await User.findByIdAndUpdate(foundUser._id,{code:null})
+            res.json({message:"You are verified. Please log in"})
+        }
+        else{
+            res.json({message:"incorrect code"})
+        }
+    }catch(err){
+        console.log(err)
+    }
+})
+
+router.post("/login",async(req,res)=>{
+    // destructure the req.body
+    const {username,password} = req.body
+    try{
+        // 1. check if the user already signed up
+        const foundUser = await User.findOne({username})
+
     // Update user profile
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
+
 
     console.log('User type:', user.userType);
 
@@ -173,6 +205,17 @@ router.post('/complete-profile', verifyToken, async (req, res) => {
       fields.forEach(field => {
         if (updateData[field] !== undefined) {
           user[field] = updateData[field];
+
+
+        if(foundUser.code !== null){
+            res.json({message:"Please check your emaill for the code"})
+        }
+
+        // 2. check if the password given in the req.body matches the passowrd in the DB
+        const isPasswordMatch = bcrypt.compareSync(password,foundUser.hashedPassword)
+        if(!isPasswordMatch){
+            return res.status(401).json({err:"username or password incorrect"})
+
         }
       });
     }

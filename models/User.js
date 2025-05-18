@@ -10,6 +10,11 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+    userType: {
+      type: String,
+      required: [true, "User type is required"],
+      enum: ["job seeker", "hiring manager"],
+    },
     fullName: {
       type: String,
       required: [true, "Full name is required"],
@@ -50,6 +55,7 @@ const userSchema = new mongoose.Schema(
     DOB: {
       type: Date,
     },
+
     education: [{
       institution: String,
       degree: String,
@@ -91,11 +97,41 @@ const userSchema = new mongoose.Schema(
       state: String,
       country: String,
       postalCode: String
+=======
+    education: {
+      type: String,
+      trim: true,
+    },
+    certificate: {
+      type: String,
+      default: "",
+    },
+    experience: {
+      type: String,
+      default: "",
+    },
+    fields: {
+      type: String,
+      default: "",
+    },
+    Address: {
+      type: String,
+      required: [true, "Address is required"],
+    },
+    currentPosition: {
+      type: String,
+      default: "",
+    },
+    company: {
+      type: String,
+      default: "",
+
     },
     hashedPassword: {
       type: String,
       required: [true, "Password is required"],
     },
+
     profileCompleted: {
       type: Boolean,
       default: false
@@ -107,12 +143,17 @@ const userSchema = new mongoose.Schema(
     updatedAt: {
       type: Date,
       default: Date.now
+
+    code:{
+      type: Number
+
     }
   },
   {
     timestamps: true, // Automatically adds createdAt and updatedAt fields
   }
 );
+
 
 // Hash password before saving
 userSchema.pre('save', async function(next) {
@@ -131,6 +172,15 @@ userSchema.pre('save', async function(next) {
 userSchema.methods.comparePassword = async function(candidatePassword) {
   return bcrypt.compare(candidatePassword, this.hashedPassword);
 };
+=======
+userSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+      delete returnedObject.hashedPassword;
+  }
+});
+
+
+
 
 const User = mongoose.model("User", userSchema);
 
