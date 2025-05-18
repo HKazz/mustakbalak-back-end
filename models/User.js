@@ -97,23 +97,23 @@ const userSchema = new mongoose.Schema(
       state: String,
       country: String,
       postalCode: String
-=======
-    education: {
-      type: String,
-      trim: true,
     },
+    // education: {
+    //   type: String,
+    //   trim: true,
+    // },
     certificate: {
       type: String,
       default: "",
     },
-    experience: {
-      type: String,
-      default: "",
-    },
-    fields: {
-      type: String,
-      default: "",
-    },
+    // experience: {
+    //   type: String,
+    //   default: "",
+    // // },
+    // fields: {
+    //   type: String,
+    //   default: "",
+    // },
     Address: {
       type: String,
       required: [true, "Address is required"],
@@ -143,7 +143,7 @@ const userSchema = new mongoose.Schema(
     updatedAt: {
       type: Date,
       default: Date.now
-
+    },
     code:{
       type: Number
 
@@ -172,7 +172,6 @@ userSchema.pre('save', async function(next) {
 userSchema.methods.comparePassword = async function(candidatePassword) {
   return bcrypt.compare(candidatePassword, this.hashedPassword);
 };
-=======
 userSchema.set('toJSON', {
   transform: (document, returnedObject) => {
       delete returnedObject.hashedPassword;

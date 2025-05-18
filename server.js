@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const morgan = require("morgan");
+const logger = require('morgan');
 const authRoutes = require("./controllers/auth.routes");
 const hiringManagerRoutes = require("./controllers/hiringManager.routes");
 const jobRoutes = require("./controllers/job.routes");
@@ -11,7 +12,7 @@ const testJwtRouter = require("./controllers/test-jwt")
 const verifyToken = require("./middleware/verify-token")
 const userRoutes = require("./controllers/user.routes")
 const companyRoutes = require("./controllers/company.routes")
-const jobRoutes = require("./controllers/joblisting.routes")
+// const jobRoutes = require("./controllers/joblisting.routes")
 
 const app = express();
 
@@ -32,7 +33,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/hiring-manager", hiringManagerRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/applications", applicationRoutes);
-=======
 app.use(express.urlencoded({ extended: true }));
 app.use(logger('dev'));
 
@@ -57,12 +57,13 @@ app.use((err, req, res, next) => {
 });
 
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-
-
-app.listen(3000, () => {
-  console.log('The express app is ready!');
-
+  console.log(`Server is running on port ${PORT}`)
 });
+
+
+// app.listen(3000, () => {
+//   console.log('The express app is ready!');
+
+// });
