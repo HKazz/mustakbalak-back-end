@@ -3,6 +3,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const verifyToken = require('../middleware/verify-token');
+const sendEmail = require('../sendEmail'); // Ensure this is imported
 
 // Signup route for job seekers
 router.post('/signup', async (req, res) => {
@@ -18,9 +19,7 @@ router.post('/signup', async (req, res) => {
       Address
     } = req.body;
 
-    console.log(req.body)
-
-    let address = Address
+    let address = Address;
 
     // Check if user already exists
     const existingUser = await User.findOne({ 
@@ -35,7 +34,10 @@ router.post('/signup', async (req, res) => {
       });
     }
 
-    // Create new user
+    // Generate a 6-digit verification code
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Create new user with verification fields
     const user = new User({
       username,
       fullName,
@@ -45,28 +47,23 @@ router.post('/signup', async (req, res) => {
       nationality,
       DOB,
       Address: address,
-      userType: 'job_seeker'
+      userType: 'job_seeker',
+      isVerified: false,
+      code: verificationCode
     });
 
     await user.save();
 
-    // Generate JWT token
-    const token = jwt.sign(
-      { 
-        userId: user._id,
-        userType: 'job_seeker'
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
+    // Send verification code to user's email
+    sendEmail(user.email, verificationCode);
 
     // Remove sensitive data before sending response
     const userResponse = user.toObject();
     delete userResponse.hashedPassword;
+    delete userResponse.code;
 
     res.status(201).json({
-      message: 'User created successfully',
-      token,
+      message: 'User created successfully. Please check your email for the verification code.',
       user: userResponse
     });
   } catch (error) {
@@ -220,6 +217,25 @@ router.post("/authenticate/:email", async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Error during authentication", error: err.message });
+  }
+});
+
+// Verify email route
+router.post("/verify-email", async (req, res) => {
+  const { username, token } = req.body;
+  try {
+    const user = await User.findOne({ username });
+    if (!user) return res.status(404).json({ message: "User not found" });
+    if (user.code === token) { // <-- use .code here
+      user.isVerified = true;
+      user.code = undefined;   // <-- clear .code
+      await user.save();
+      return res.json({ success: true, message: "Email verified successfully" });
+    } else {
+      return res.status(400).json({ message: "Invalid verification code" });
+    }
+  } catch (err) {
+    res.status(500).json({ message: "Error during verification", error: err.message });
   }
 });
 

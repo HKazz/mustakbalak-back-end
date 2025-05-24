@@ -5,17 +5,17 @@ const sendEmail = require('../sendEmail')
 
 
 
-router.post("/test-email",async (req,res)=>{
-    try{
-    sendEmail("omaraakamal@gmail.com")
-    res.json("Email successfully sent")
-    }
-    catch(err){
-        console.log(err)
-    }
+// router.post("/test-email",async (req,res)=>{
+//     try{
+//     sendEmail("hasan_kazerooni@outlook.com")
+//     res.json("Email successfully sent")
+//     }
+//     catch(err){
+//         console.log(err)
+//     }
 
 
-})
+// })
 
 
 router.get('/:user_id', verifyToken, async (req,res) => {

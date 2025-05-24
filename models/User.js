@@ -145,9 +145,10 @@ const userSchema = new mongoose.Schema(
       default: Date.now
     },
     code:{
-      type: Number
+      type: String
 
-    }
+    },
+    isVerified: { type: Boolean, default: false }
   },
   {
     timestamps: true, // Automatically adds createdAt and updatedAt fields
